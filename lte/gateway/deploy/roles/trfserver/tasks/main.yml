@@ -87,13 +87,14 @@
     - iperf3_3.9-1_amd64.deb
   when: preburn
 
-#- name: Install the latest iperf3
-#  apt:
-#    deb: "https://iperf.fr/download/ubuntu/{{ item }}"
-#  with_items:
-#    - iperf3_3.1.3-1_amd64.deb
-#    - libiperf0_3.1.3-1_amd64.deb
-#  when: preburn
+- name: configure sshd_config
+  become: yes
+  replace:
+    path: /etc/ssh/sshd_config
+    regexp: 'PasswordAuthentication no'
+    replace: 'PasswordAuthentication yes'
+  when: preburn
+
 
 - name: Add convenience function for starting the trfgen test servers
   lineinfile:
