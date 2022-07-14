@@ -20,8 +20,6 @@
 
   vars:
     magma_root: /home/{{ ansible_user }}/magma
-#    preburn: true
-#    full_provision: false
     preburn: false
     full_provision: true
 

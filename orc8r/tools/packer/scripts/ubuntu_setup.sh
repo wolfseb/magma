@@ -21,7 +21,10 @@ sed -i "s/^.*requiretty/#Defaults requiretty/" /etc/sudoers
 echo 'APT::Periodic::Enable "0";' >> /etc/apt/apt.conf.d/10periodic
 
 apt update
-apt install -y ansible
+apt install -y software-properties-common
+add-apt-repository ppa:ansible/ansible
+apt update
+apt install -y ansible=5.10.0-1ppa~focal
 
 # Mount the guest additions iso and run the install script
 mkdir -p /mnt/iso
