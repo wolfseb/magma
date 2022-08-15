@@ -111,8 +111,9 @@ services:
     command: /usr/bin/env python3 -m magma.subscriberdb.main
 
   enodebd:
-    <<: *pyservice
+    <<: *service
     container_name: enodebd
+    image: bazel/lte/gateway/python/magma/enodebd:enodebd_image
     healthcheck:
       test: ["CMD", "nc", "-zv", "localhost", "60055"]
       interval: "4s"
@@ -122,7 +123,7 @@ services:
       - NET_ADMIN  # The container is invoking iptables and needs NET_ADMIN for that
     environment:
       MAGMA_DEV_MODE: ${MAGMA_DEV_MODE}
-    command: /usr/bin/env python3 -m magma.enodebd.main
+#    command: /usr/bin/env python3 -m magma.enodebd.main
 
   state:
     <<: *pyservice
@@ -216,8 +217,9 @@ services:
              /usr/bin/env nghttpx --conf /var/opt/magma/tmp/nghttpx.conf /var/opt/magma/certs/controller.key /var/opt/magma/certs/controller.crt"
 
   ctraced:
-    <<: *pyservice
+    <<: *service
     container_name: ctraced
+    image: bazel/orc8r/gateway/python/magma/ctraced:ctraced_image
     healthcheck:
       test: ["CMD", "nc", "-zv", "localhost", "50079"]
       interval: "4s"
