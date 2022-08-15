@@ -227,7 +227,7 @@ services:
       retries: 3
     environment:
       MAGMA_DEV_MODE: ${MAGMA_DEV_MODE}
-    command: /usr/bin/env python3 -m magma.ctraced.main
+#    command: /usr/bin/env python3 -m magma.ctraced.main
 
   sctpd:
     <<: *cservice
