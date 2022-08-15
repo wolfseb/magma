@@ -205,7 +205,6 @@ services:
       interval: "4s"
       timeout: "4s"
       retries: 3
-    command: /usr/bin/env python3 -m magma.ctraced.main
 
   sctpd:
     <<: *cservice
