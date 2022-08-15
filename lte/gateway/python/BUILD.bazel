@@ -9,34 +9,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@rules_pkg//pkg:mappings.bzl", "pkg_filegroup")
-load("//bazel:runfiles.bzl", "expand_runfiles")
+load("@io_bazel_rules_docker//container:container.bzl", "container_image", "container_layer", "container_push")
+load("@io_bazel_rules_docker//docker/package_managers:download_pkgs.bzl", "download_pkgs")
+load("@io_bazel_rules_docker//docker/package_managers:install_pkgs.bzl", "install_pkgs")
 
-LTE_PY_SERVICES = [
-    "enodebd",
-    "health",
-    "kernsnoopd",
-    "mobilityd",
-    "monitord",
-    "pipelined",
-    "policydb",
-    "redirectd",
-    "smsd",
-    "subscriberdb",
-]
 
-[
-    expand_runfiles(
-        name = "{py_service}_expanded".format(py_service = py_service),
-        targets = [
-            "//lte/gateway/python/magma/{py_service}:{py_service}".format(py_service = py_service),
+download_pkgs(
+    name = "python_interpreters_packages",
+    packages = [
+        "python",  # Python 2 seems to be required during the build
+        "python3",
+        "python3-distutils",  # make strtobool from deprecated distutils work
         ],
-    )
-    for py_service in LTE_PY_SERVICES
-]
+    image_tar = "@ubuntu_focal//image",
+)
 
-pkg_filegroup(
-    name = "magma_python_lte_services",
-    srcs = ["{py_service}_expanded".format(py_service = py_service) for py_service in LTE_PY_SERVICES],
-    visibility = ["//lte/gateway/release:__pkg__"],
+install_pkgs(
+    name = "python_interpreters_layer",
+    image_tar = "@ubuntu_focal//image",
+    installables_tar = ":python_interpreters_packages.tar",
+    output_image_name = "python_interpreters_layer",
+)
+
+container_image(
+    name = "python_base_image",
+    base = ":python_interpreters_layer.tar",
+    visibility = ["//visibility:public"],
 )
