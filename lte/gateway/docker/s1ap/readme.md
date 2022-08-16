@@ -105,7 +105,7 @@ sudo su root -c 'sudo echo "-----BEGIN CERTIFICATE-----
 -----END CERTIFICATE-----" > /var/opt/magma/certs/rootCA.pem'
 
 # Run bootstrap script and reboot
-sudo agw_install_docker.sh
+sudo ./agw_install_docker.sh
 sudo reboot
 ```
 
