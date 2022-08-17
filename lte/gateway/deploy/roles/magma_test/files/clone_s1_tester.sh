@@ -13,20 +13,21 @@
 
 git_src="https://github.com/magma/S1APTester.git"
 
-if [ -d "$S1AP_TESTER_SRC" ]; then
-    cd "$S1AP_TESTER_SRC" || exit
-    echo "Syncing repo"
-    git pull --rebase $git_src
-else
-    # Git clone
-    echo "cloning repo"
-    git clone $git_src "$S1AP_TESTER_SRC"
+#if [ -d "$S1AP_TESTER_SRC" ]; then
+#    cd "$S1AP_TESTER_SRC" || exit
+#    echo "Syncing repo"
+#    git pull --rebase $git_src
+#else
+#    # Git clone
+#    echo "cloning repo"
+#    git clone $git_src "$S1AP_TESTER_SRC"
+#
+#    cd "$S1AP_TESTER_SRC" || exit
+#
+#    echo "set pull to rebase instead of merge"
+#    git config --local pull.rebase true
+#fi;
 
-    cd "$S1AP_TESTER_SRC" || exit
-
-    echo "set pull to rebase instead of merge"
-    git config --local pull.rebase true
-fi;
 
 # Clear out the libraries to force complete rebuild after cloning
 for TARGET_DIR in TestCntlrApp Trfgen; do

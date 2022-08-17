@@ -143,8 +143,12 @@ class TestWrapper(object):
         req.ip_version = ip_version
         assert self._s1_util.issue_cmd(s1ap_types.tfwCmd.ENB_CONFIG, req) == 0
         response = self._s1_util.get_response()
+        print(response.msg_p.value)
         assert response.msg_type == s1ap_types.tfwCmd.ENB_CONFIG_CONFIRM.value
         res = response.cast(s1ap_types.FwNbConfigCfm_t)
+        print(res.status)
+        print(res.cause)
+        print(s1ap_types.CfgStatus.CFG_DONE.value)
         assert res.status == s1ap_types.CfgStatus.CFG_DONE.value
 
     def _issue_s1setup_req(self):
@@ -162,6 +166,7 @@ class TestWrapper(object):
         """Perform S1 setup to the EPC"""
         print("************************* S1 setup")
         res = self._issue_s1setup_req()
+        print("blub")
 
         retry = 0
         while retry < TestWrapper.MSX_S1_RETRY:

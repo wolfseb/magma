@@ -16,11 +16,11 @@ version: "3.7"
 services:
   s1aptester:
     build:
-      context: ${BUILD_CONTEXT}
+      context: ${MAGMA_ROOT}
       dockerfile: lte/gateway/docker/services/s1aptester/Dockerfile
     volumes:
       - /opt/magma/lte/gateway/configs/:/etc/magma
-      - ${BUILD_CONTEXT}:/magma
+      - ${MAGMA_ROOT}:/magma
     image: ${DOCKER_REGISTRY}agw-s1aptester:${IMAGE_VERSION}
     container_name: s1aptester
     command: /bin/bash
@@ -31,7 +31,7 @@ services:
 
   trfgen:
     build:
-      context: ${BUILD_CONTEXT}
+      context: ${MAGMA_ROOT}
       dockerfile: lte/gateway/docker/services/trfgen/Dockerfile
     image: ${DOCKER_REGISTRY}agw-trfgen:${IMAGE_VERSION}
     container_name: trfgen

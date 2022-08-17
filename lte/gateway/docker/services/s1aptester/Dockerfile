@@ -86,32 +86,4 @@ RUN apt-get update && \
   virtualenv=$VIRTUALENV_VERSION \
   wget=$WGET_VERSION && \
   apt-get clean && \
-  gem install fpm
-
-COPY . $MAGMA_ROOT/
-
-WORKDIR /var/tmp/
-
-RUN DIRECTORY="/tmp/aioeventlet" && \
-  mkdir -p ${DIRECTORY} && \
-  /magma/third_party/build/bin/aioeventlet_build.sh ${DIRECTORY} && \
-  dpkg -i ${DIRECTORY}/python3-aioeventlet* && \
-  rm -rf ${DIRECTORY} && \
-  mkdir -p ${SWAGGER_CODEGEN_DIR} && \
-  wget -q https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/${CODEGEN_VERSION}/swagger-codegen-cli-${CODEGEN_VERSION}.jar -O ${SWAGGER_CODEGEN_JAR}
-
-WORKDIR $MAGMA_ROOT/lte/gateway/python
-
-RUN make && \
-  mkdir -p $S1AP_TESTER_ROOT/bin /var/tmp/test_results/
-
-WORKDIR $MAGMA_ROOT/lte/gateway/python/integ_tests
-
-RUN make && \
-  rm -rf /var/lib/apt/lists/* && \
-  $MAGMA_ROOT/lte/gateway/deploy/roles/magma_test/files/clone_s1_tester.sh && \
-  $MAGMA_ROOT/lte/gateway/deploy/roles/magma_test/files/build_s1_tester.sh && \
-  pip3 install --cache-dir $PIP_CACHE_HOME pyparsing && \
-  python3 $MAGMA_ROOT/lte/gateway/deploy/roles/magma_test/files/c_parser.py && \
-  sed -i 's/magtivate_cmd =.*/magtivate_cmd = ":"/g' $MAGMA_ROOT/lte/gateway/python/integ_tests/s1aptests/s1ap_utils.py && \
-  sed -i 's/"vagrant"/"ubuntu"/g' $MAGMA_ROOT/lte/gateway/python/integ_tests/s1aptests/s1ap_utils.py
+  gem install fpm \
