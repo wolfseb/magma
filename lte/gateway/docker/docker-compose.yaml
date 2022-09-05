@@ -19,6 +19,8 @@ x-standard-volumes: &volumes_anchor
   - /tmp:/tmp
   - /var/log:/var/log
   - /etc/openvswitch:/etc/openvswitch
+  - /home/vagrant/magma/lte/gateway/configs:/magma/lte/gateway/configs
+  - /sbin/dhclient:/sbin/dhclient
 
 x-generic-service: &service
   volumes: *volumes_anchor
