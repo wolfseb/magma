@@ -512,6 +512,62 @@ def integ_test_deb_installation(
     execute(_run_integ_tests, gateway_ip)
 
 
+def integ_test_containerized(
+        gateway_host=None, test_host=None, trf_host=None,
+        destroy_vm='True', provision_vm='True',
+):
+    """
+    Run the integration tests. This defaults to running on local vagrant
+    machines, but can also be pointed to an arbitrary host (e.g. amazon) by
+    passing "address:port" as arguments
+
+    gateway_host: The ssh address string of the machine to run the gateway
+        services on. Formatted as "host:port". If not specified, defaults to
+        the `magma` vagrant box.
+
+    test_host: The ssh address string of the machine to run the tests on
+        on. Formatted as "host:port". If not specified, defaults to the
+        `magma_test` vagrant box.
+
+    trf_host: The ssh address string of the machine to run the TrafficServer
+        on. Formatted as "host:port". If not specified, defaults to the
+        `magma_trfserver` vagrant box.
+    """
+
+    destroy_vm = bool(strtobool(destroy_vm))
+    provision_vm = bool(strtobool(provision_vm))
+
+    # Setup the gateway: use the provided gateway if given, else default to the
+    # vagrant machine
+    gateway_host, gateway_ip = _setup_gateway(gateway_host, "magma", "dev", "magma_dev.yml", destroy_vm, provision_vm)
+    run('rm -rf /etc/snowflake; sudo touch /etc/snowflake')
+    execute(_start_gateway_containerized)
+
+    # Set up the trfserver: use the provided trfserver if given, else default to the
+    # vagrant machine
+    _setup_vm(trf_host, "magma_trfserver", "trfserver", "magma_trfserver.yml", destroy_vm, provision_vm)
+    execute(_start_trfserver)
+
+    # Run the tests: use the provided test machine if given, else default to
+    # the vagrant machine
+    _setup_vm(test_host, "magma_test", "test", "magma_test.yml", destroy_vm, provision_vm)
+    execute(_make_integ_tests)
+    execute(_run_integ_tests, gateway_ip)
+
+
+def _start_gateway_containerized():
+    """ Starts the gateway """
+    with cd(AGW_PYTHON_ROOT):
+        run('make buildenv')
+
+    with cd(AGW_ROOT):
+        run('for component in redis nghttpx td-agent-bit; do cp "${MAGMA_ROOT}"/{orc8r,lte}/gateway/configs/templates/${component}.conf.template; done')
+
+    with cd(AGW_ROOT + "/docker"):
+        run('docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up -d --quiet-pull')
+        run('sleep 60; docker-compose ps')
+
+
 def run_integ_tests(tests=None, federated_mode=False):
     """
     Function is required to run tests only in pre-configured Jenkins env.
