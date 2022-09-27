@@ -14,6 +14,7 @@ limitations under the License.
 import sys
 from distutils.util import strtobool
 from time import sleep
+from typing import List
 
 from fabric.api import cd, env, execute, local, run, settings, sudo
 from fabric.contrib.files import exists
@@ -860,6 +861,10 @@ def _run_integ_tests(gateway_ip='192.168.60.142', tests=None, federated_mode=Fal
         -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no: have ssh
          never prompt to confirm the host fingerprints
     """
+    # healthy = _health()
+    # if not healthy:
+    #    raise RuntimeError("Containerized AGW not healthy")
+
     local(
         'ssh -i %s -o UserKnownHostsFile=/dev/null'
         ' -o StrictHostKeyChecking=no -tt %s -p %s'
@@ -872,6 +877,26 @@ def _run_integ_tests(gateway_ip='192.168.60.142', tests=None, federated_mode=Fal
         ' make %s enable-flaky-retry=true %s\''
         % (key, host, port, gateway_ip, test_mode, tests),
     )
+
+
+def _health(start_period: int = 30, interval: int = 5, retry_limit: int = 20, services: List[str] = ("pipelined", "sessiond", "control_proxy")):
+    print(f"Waiting {start_period} seconds to give agw time to start up")
+    for i in range(start_period):
+        sleep(1)
+        print(".")
+    result = False
+    retry_limit, retry = retry_limit, 0
+    while result is False and retry < retry_limit:
+        which_docker = run("which docker")
+        print("#################################################")
+        print(f"####### {which_docker}")
+        docker_version = run("docker --version")
+        print(f"####### {docker_version}")
+        output = run("docker inspect --format='{{.State.Health.Status}}' %s %s %s" % (services[0], services[1], services[2]))
+        result = all(line.strip() == "healthy" for line in output.split("\n"))
+        retry += 1
+        sleep(interval)
+    return result
 
 
 def _run_load_tests(gateway_ip='192.168.60.142'):
