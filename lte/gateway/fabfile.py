@@ -557,8 +557,11 @@ def integ_test_containerized(
 
 def _start_gateway_containerized():
     """ Starts the gateway """
-    with cd(AGW_PYTHON_ROOT):
-        run('make buildenv')
+    with cd(AGW_ROOT):
+        # run('make buildenv')
+        run('make run')
+        run('sudo systemctl stop magma@* redis sctpd')
+        run('sudo systemctl start magma_dp@envoy.service')
 
     with cd(AGW_ROOT):
         run('for component in redis nghttpx td-agent-bit; do cp "${MAGMA_ROOT}"/{orc8r,lte}/gateway/configs/templates/${component}.conf.template; done')
@@ -935,20 +938,25 @@ def _run_integ_tests(gateway_ip='192.168.60.142', tests=None, federated_mode=Fal
     )
 
 
-def _health(start_period: int = 30, interval: int = 5, retry_limit: int = 20, services: List[str] = ("pipelined", "sessiond", "control_proxy")):
+def _health(
+        start_period: int = 30,
+        interval: int = 5,
+        retry_limit: int = 20,
+        services: List[str] = ("pipelined", "sessiond", "control_proxy")
+):
     print(f"Waiting {start_period} seconds to give agw time to start up")
     for i in range(start_period):
         sleep(1)
         print(".")
     result = False
-    retry_limit, retry = retry_limit, 0
+    retry = 0
     while result is False and retry < retry_limit:
         which_docker = run("which docker")
         print("#################################################")
         print(f"####### {which_docker}")
         docker_version = run("docker --version")
         print(f"####### {docker_version}")
-        output = run("docker inspect --format='{{.State.Health.Status}}' %s %s %s" % (services[0], services[1], services[2]))
+        output = run(f"docker inspect --format='{{.State.Health.Status}}' {services[0]} {services[1]} {services[2]}")
         result = all(line.strip() == "healthy" for line in output.split("\n"))
         retry += 1
         sleep(interval)
