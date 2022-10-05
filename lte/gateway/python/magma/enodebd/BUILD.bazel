@@ -51,7 +51,9 @@ py_binary(
 download_pkgs(
     name = "enodebd_requisites",
     packages = [
-        "libxml2",  # For lxml library
+#        "libxml2",  # For lxml library
+        "sudo",
+        "iptables",
         ],
     image_tar = "//lte/gateway/python:python_base_image.tar",
 )
