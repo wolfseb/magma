@@ -251,6 +251,7 @@ services:
   oai_mme:
     <<: *cservice
     container_name: oai_mme
+#    image: bazel/lte/gateway/c/core:mme_image
     healthcheck:
       test: ["CMD", "nc", "-zv", "localhost", "50073"]
       interval: "4s"
@@ -301,8 +302,9 @@ services:
         /usr/bin/env python3 -m magma.pipelined.main"
 
   sessiond:
-    <<: *cservice
+    <<: *service
     container_name: sessiond
+    image: bazel/lte/gateway/c/session_manager:sessiond_image
     ulimits:
       core: -1
     security_opt:
@@ -319,12 +321,12 @@ services:
     environment:
       MAGMA_PRINT_GRPC_PAYLOAD: 0
       MAGMA_DEV_MODE: ${MAGMA_DEV_MODE}
-    command: /usr/local/bin/sessiond
+#    command: /usr/local/bin/sessiond
 
   mobilityd:
     <<: *service
-    image: bazel/lte/gateway/python/magma/mobilityd:mobilityd_image
     container_name: mobilityd
+    image: bazel/lte/gateway/python/magma/mobilityd:mobilityd_image
     healthcheck:
       test: ["CMD", "nc", "-zv", "localhost", "60051"]
       interval: "4s"
