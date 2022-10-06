@@ -52,7 +52,7 @@ py_binary(
 download_pkgs(
     name = "mobilityd_requisites",
     packages = [
-        "tmux",
+        "netcat",
     ],
     image_tar = "//lte/gateway/python:python_base_image.tar",
 )
