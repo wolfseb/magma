@@ -11,6 +11,15 @@
 
 load("@python_deps//:requirements.bzl", "requirement")
 load("@rules_python//python:defs.bzl", "py_binary", "py_library")
+load("@io_bazel_rules_docker//python3:image.bzl", "py3_image")
+load("@io_bazel_rules_docker//container:container.bzl", "container_image")
+load("@io_bazel_rules_docker//docker/package_managers:download_pkgs.bzl", "download_pkgs")
+load("@io_bazel_rules_docker//docker/package_managers:install_pkgs.bzl", "install_pkgs")
+load(
+    "@io_bazel_rules_docker//docker/util:run.bzl",
+    "container_run_and_commit",
+)
+
 
 MAGMA_ROOT = "../../../../../"
 
@@ -32,11 +41,50 @@ py_binary(
     visibility = ["//lte/gateway/python:__pkg__"],
     deps = [
         ":mobilityd_lib",
-        "//lte/protos:mconfigs_python_proto",
-        "//lte/protos:subscriberdb_python_grpc",
-        "//orc8r/gateway/python/magma/common:sentry",
+#        "//lte/protos:mconfigs_python_proto",
+#        "//lte/protos:subscriberdb_python_grpc",
+#        "//orc8r/gateway/python/magma/common:sentry",
+#        "//orc8r/gateway/python/magma/common:service",
+#        "//orc8r/gateway/python/magma/common/redis:client",
+    ],
+)
+
+download_pkgs(
+    name = "mobilityd_requisites",
+    packages = [
+        "tmux",
+    ],
+    image_tar = "//lte/gateway/python:python_base_image.tar",
+)
+
+install_pkgs(
+    name = "mobilityd_requisites_layer",
+    image_tar = "//lte/gateway/python:python_base_image.tar",
+    installables_tar = ":mobilityd_requisites.tar",
+    output_image_name = "mobilityd_requisites",
+)
+
+container_image(
+    name = "mobilityd_base_image",
+    base = ":mobilityd_requisites_layer.tar",
+)
+
+py3_image(
+    name = "mobilityd_image",
+    base = ":mobilityd_base_image",
+    srcs = ["main.py"],
+    imports = [
+        LTE_ROOT,
+        ORC8R_ROOT,
+    ],
+    # legacy_create_init = False is required to fix issues in module import, see https://github.com/rules-proto-grpc/rules_proto_grpc/issues/145
+    legacy_create_init = False,
+    main = "main.py",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":mobilityd_lib",
         "//orc8r/gateway/python/magma/common:service",
-        "//orc8r/gateway/python/magma/common/redis:client",
+        "//orc8r/gateway/python/magma/common:sentry",
     ],
 )
 

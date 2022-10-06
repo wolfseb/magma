@@ -87,6 +87,7 @@ services:
   directoryd:
     <<: *pyservice
     container_name: directoryd
+#    image: bazel/orc8r/gateway/python/magma/directoryd:directoryd_image
     depends_on:
       - redis
     healthcheck:
@@ -101,6 +102,7 @@ services:
   subscriberdb:
     <<: *pyservice
     container_name: subscriberdb
+#    image: bazel/lte/gateway/python/magma/subscriberdb:subscriberdb_image
     healthcheck:
       test: ["CMD", "nc", "-zv", "localhost", "50051"]
       interval: "4s"
@@ -217,7 +219,7 @@ services:
              /usr/bin/env nghttpx --conf /var/opt/magma/tmp/nghttpx.conf /var/opt/magma/certs/controller.key /var/opt/magma/certs/controller.crt"
 
   ctraced:
-    <<: *service
+    <<: *pyservice
     container_name: ctraced
     image: bazel/orc8r/gateway/python/magma/ctraced:ctraced_image
     healthcheck:
@@ -245,16 +247,6 @@ services:
       MAGMA_PRINT_GRPC_PAYLOAD: 0
       MAGMA_DEV_MODE: ${MAGMA_DEV_MODE}
     command: /usr/local/bin/sctpd
-    healthcheck:
-      #test: ["CMD", "arg"]
-      test: "[ -S /tmp/sctpd_downstream.sock_doesntexist ]"
-      #interval: 1m30s
-      interval: 4s
-      #timeout: 30s
-      timeout: 1s
-      retries: 2
-      #start_period: 30s
-      start_period: 5s
 
   oai_mme:
     <<: *cservice
@@ -330,7 +322,8 @@ services:
     command: /usr/local/bin/sessiond
 
   mobilityd:
-    <<: *pyservice
+    <<: *service
+    image: bazel/lte/gateway/python/magma/mobilityd:mobilityd_image
     container_name: mobilityd
     healthcheck:
       test: ["CMD", "nc", "-zv", "localhost", "60051"]
@@ -339,8 +332,8 @@ services:
       retries: 3
     environment:
       MAGMA_DEV_MODE: ${MAGMA_DEV_MODE}
-    command:
-      sh -c "sleep 5 && /usr/bin/env python3 -m magma.mobilityd.main"
+#    command:
+#      sh -c "sleep 5 && /usr/bin/env python3 -m magma.mobilityd.main"
 
   td-agent-bit:
     <<: *pyservice
