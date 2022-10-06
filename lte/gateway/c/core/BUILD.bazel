@@ -11,6 +11,15 @@
 
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
 load("//bazel:asn1c.bzl", "cc_asn1_library")
+load("@io_bazel_rules_docker//container:container.bzl", "container_image")
+load("@io_bazel_rules_docker//docker/package_managers:download_pkgs.bzl", "download_pkgs")
+load("@io_bazel_rules_docker//docker/package_managers:install_pkgs.bzl", "install_pkgs")
+load("@io_bazel_rules_docker//docker/package_managers:apt_key.bzl", "add_apt_key")
+load(
+    "@io_bazel_rules_docker//docker/util:run.bzl",
+    "container_run_and_commit",
+)
+load("@io_bazel_rules_docker//cc:image.bzl", "cc_image")
 
 package(default_visibility = ["//lte/gateway/c/core:__subpackages__"])
 
@@ -1209,4 +1218,68 @@ cc_library(
     deps = [
         "//orc8r/gateway/c/common/sentry:sentry_wrapper",
     ],
+)
+
+add_apt_key(
+    name = "jfrog_gpg_image",
+    image = "@ubuntu_focal_amd64//image",
+    keys = [
+        "//orc8r/tools/ansible/roles/pkgrepo/files:jfrog.pub",
+    ],
+)
+
+download_pkgs(
+    name = "download_ca_certificates",
+    image_tar = "@ubuntu_focal_amd64//image",
+    packages = [
+        "ca-certificates",
+    ],
+)
+
+install_pkgs(
+    name = "install_ca_certificates",
+    image_tar = ":jfrog_gpg_image.tar",
+    installables_tar = ":download_ca_certificates.tar",
+    installation_cleanup_commands = "rm -rf /var/lib/apt/lists/*",
+    output_image_name = "install_ca_certificates",
+)
+
+
+download_pkgs(
+    name = "mme_requisites",
+    additional_repos = [
+        "deb https://artifactory.magmacore.org/artifactory/debian-test focal-ci main",
+    ],
+    image_tar = ":install_ca_certificates.tar",
+    packages = [
+        "libconfig9",
+        "libcurl4",
+        "libczmq4",
+        "libfdcore6",
+        "libgoogle-glog0v5",
+        "netcat",
+        "oai-asn1c",
+        "oai-freediameter",
+        "oai-gnutls",
+        "oai-nettle",
+    ],
+)
+
+install_pkgs(
+    name = "mme_requisites_layer",
+    image_tar = ":install_ca_certificates.tar",
+    installables_tar = ":mme_requisites.tar",
+    installation_cleanup_commands = "rm -rf /var/lib/apt/lists/*",
+    output_image_name = "mme_requisites_layer",
+)
+
+container_image(
+    name = "mme_base_image",
+    base = ":mme_requisites_layer.tar",
+)
+
+cc_image(
+    name = "mme_image",
+    base = ":mme_base_image",
+    binary = ":mme_oai",
 )
