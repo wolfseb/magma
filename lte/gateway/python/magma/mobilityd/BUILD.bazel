@@ -61,6 +61,7 @@ install_pkgs(
     name = "mobilityd_requisites_layer",
     image_tar = "//lte/gateway/python:python_base_image.tar",
     installables_tar = ":mobilityd_requisites.tar",
+    installation_cleanup_commands = "rm -rf /var/lib/apt/lists/*",
     output_image_name = "mobilityd_requisites",
 )
 
