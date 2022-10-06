@@ -13,6 +13,7 @@ load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
 load("@io_bazel_rules_docker//container:container.bzl", "container_image")
 load("@io_bazel_rules_docker//docker/package_managers:download_pkgs.bzl", "download_pkgs")
 load("@io_bazel_rules_docker//docker/package_managers:install_pkgs.bzl", "install_pkgs")
+load("@io_bazel_rules_docker//docker/package_managers:apt_key.bzl", "add_apt_key")
 load(
     "@io_bazel_rules_docker//docker/util:run.bzl",
     "container_run_and_commit",
@@ -41,36 +42,46 @@ cc_binary(
     ],
 )
 
+add_apt_key(
+    name = "jfrog_gpg_image",
+    image = "@ubuntu_focal_amd64//image",
+    keys = [
+        "//orc8r/tools/ansible/roles/pkgrepo/files:jfrog.pub",
+    ],
+)
+
+download_pkgs(
+    name = "download_ca_certificates",
+    image_tar = "@ubuntu_focal_amd64//image",
+    packages = [
+        "ca-certificates",
+    ],
+)
+
+install_pkgs(
+    name = "install_ca_certificates",
+    image_tar = ":jfrog_gpg_image.tar",
+    installables_tar = ":download_ca_certificates.tar",
+    installation_cleanup_commands = "rm -rf /var/lib/apt/lists/*",
+    output_image_name = "install_ca_certificates",
+)
+
 download_pkgs(
     name = "sessiond_requisites",
-    image_tar = "@ubuntu_focal//image",
+    additional_repos = [
+        "deb https://artifactory.magmacore.org/artifactory/debian-test focal-ci main",
+    ],
+    image_tar = ":install_ca_certificates.tar",
     packages = [
+        "libcurl4",
+        "libfolly-dev",
         "netcat",
-#        "libcurl4",
-#        "libcurl4-openssl-dev",
-#        "libevent-dev",
-#        "libgoogle-glog-dev",
-#        "libgrpc++-dev",
-#        "libgrpc-dev",
-#        "libmnl-dev",
-#        "libnl-3-dev",
-#        "libnl-genl-3-dev",
-#        "libprotobuf-dev",
-#        "libprotoc-dev",
-#        "libssl-dev",
-#        "libsystemd-dev",
-#        "libtins-dev",
-#        "libyaml-cpp-dev",
-#        "libzmq3-dev",
-#        "pkg-config",
-#        "protobuf-compiler",
-#        "zlib1g-dev",
     ],
 )
 
 install_pkgs(
     name = "sessiond_requisites_layer",
-    image_tar = "@ubuntu_focal//image",
+    image_tar = "install_ca_certificates.tar",
     installables_tar = ":sessiond_requisites.tar",
     installation_cleanup_commands = "rm -rf /var/lib/apt/lists/*",
     output_image_name = "sessiond_requisites_layer",
