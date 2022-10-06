@@ -118,6 +118,7 @@ services:
       retries: 3
     cap_add:
       - NET_ADMIN  # The container is invoking iptables and needs NET_ADMIN for that
+#    command: /usr/bin/env python3 -m magma.enodebd.main
 
   state:
     <<: *pyservice
@@ -201,12 +202,13 @@ services:
   ctraced:
     <<: *pyservice
     container_name: ctraced
-    image: bazel/orc8r/gateway/python/magma/ctraced:ctraced_image
+#    image: bazel/orc8r/gateway/python/magma/ctraced:ctraced_image
     healthcheck:
       test: ["CMD", "nc", "-zv", "localhost", "50079"]
       interval: "4s"
       timeout: "4s"
       retries: 3
+    command: /usr/bin/env python3 -m magma.ctraced.main
 
   sctpd:
     <<: *cservice
@@ -302,8 +304,7 @@ services:
       interval: "4s"
       timeout: "4s"
       retries: 3
-#    command:
-#      sh -c "sleep 5 && /usr/bin/env python3 -m magma.mobilityd.main"
+#    command: sh -c "sleep 5 && /usr/bin/env python3 -m magma.mobilityd.main"
 
   td-agent-bit:
     <<: *pyservice
