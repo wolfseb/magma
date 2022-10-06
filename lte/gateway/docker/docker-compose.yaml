@@ -221,7 +221,7 @@ services:
   ctraced:
     <<: *pyservice
     container_name: ctraced
-    image: bazel/orc8r/gateway/python/magma/ctraced:ctraced_image
+#    image: bazel/orc8r/gateway/python/magma/ctraced:ctraced_image
     healthcheck:
       test: ["CMD", "nc", "-zv", "localhost", "50079"]
       interval: "4s"
@@ -229,7 +229,7 @@ services:
       retries: 3
     environment:
       MAGMA_DEV_MODE: ${MAGMA_DEV_MODE}
-#    command: /usr/bin/env python3 -m magma.ctraced.main
+    command: /usr/bin/env python3 -m magma.ctraced.main
 
   sctpd:
     <<: *cservice
