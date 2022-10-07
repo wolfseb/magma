@@ -1254,6 +1254,9 @@ download_pkgs(
         "libconfig9",
         "libcurl4",
         "libczmq4",
+        "libevent-2.1-7",
+        "libevent-openssl-2.1-7",
+        "libevent-pthreads-2.1-7",
         "libfdcore6",
         "libgoogle-glog0v5",
         "netcat",
@@ -1280,5 +1283,5 @@ container_image(
 cc_image(
     name = "mme_image",
     base = ":mme_base_image",
-    binary = ":mme_oai",
+    binary = ":agw_of",
 )
