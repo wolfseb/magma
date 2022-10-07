@@ -99,6 +99,7 @@ class Test3485TimerForDefaultBearerWithMmeRestart(unittest.TestCase):
             s1ap_types.tfwCmd.UE_DROP_ACTV_DEFAULT_EPS_BEARER_CTXT_REQ,
             drop_acctv_dflt_bearer_req,
         )
+        time_1 = time.time()
 
         time.sleep(2)
         print('*** Sending PDN connectivity Req ***')
@@ -117,6 +118,7 @@ class Test3485TimerForDefaultBearerWithMmeRestart(unittest.TestCase):
             '*** Sending indication to drop Activate Default EPS bearer Ctxt'
             ' Req ***',
         )
+        time.sleep(8)
         drop_acctv_dflt_bearer_req = (
             s1ap_types.UeDropActvDefaultEpsBearCtxtReq_t()
         )
@@ -126,6 +128,7 @@ class Test3485TimerForDefaultBearerWithMmeRestart(unittest.TestCase):
             s1ap_types.tfwCmd.UE_DROP_ACTV_DEFAULT_EPS_BEARER_CTXT_REQ,
             drop_acctv_dflt_bearer_req,
         )
+        print("###########################  time elapsed: ", time.time() - time_1)
 
         retransmitted_response = self._s1ap_wrapper.s1_util.get_response()
         assert (
