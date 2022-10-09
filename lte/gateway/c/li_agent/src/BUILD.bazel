@@ -36,7 +36,7 @@ cc_binary(
 
 download_pkgs(
     name = "liagent_requisites",
-    image_tar = "@ubuntu_focal//image",
+    image_tar = "@ubuntu_focal_amd64//image",
     packages = [
         "libcurl4",
         "libgflags2.2",
@@ -47,7 +47,7 @@ download_pkgs(
 
 install_pkgs(
     name = "liagentd_requisites_layer",
-    image_tar = "@ubuntu_focal//image",
+    image_tar = "@ubuntu_focal_amd64//image",
     installables_tar = ":liagent_requisites.tar",
     installation_cleanup_commands = "rm -rf /var/lib/apt/lists/*",
     output_image_name = "liagentd_requisites_layer",

@@ -1278,6 +1278,11 @@ install_pkgs(
 container_image(
     name = "mme_base_image",
     base = ":mme_requisites_layer.tar",
+    entrypoint = "/usr/local/bin/oai_mme",
+#    cmd = [
+#        "-c", "/var/opt/magma/tmp/mme.conf",
+#        "-s", "/var/opt/magma/tmp/spgw.conf",
+#    ],
 )
 
 cc_image(

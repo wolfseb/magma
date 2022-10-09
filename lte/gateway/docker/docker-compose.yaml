@@ -211,8 +211,9 @@ services:
     command: /usr/bin/env python3 -m magma.ctraced.main
 
   sctpd:
-    <<: *cservice
+    <<: *service
     container_name: sctpd
+    image: bazel/lte/gateway/c/sctpd/src:sctpd_image
     ulimits:
       core: -1
     healthcheck:
@@ -224,12 +225,12 @@ services:
       - seccomp:unconfined
     environment:
       MAGMA_PRINT_GRPC_PAYLOAD: 0
-    command: /usr/local/bin/sctpd
+#    command: /usr/local/bin/sctpd
 
   oai_mme:
-    <<: *cservice
+    <<: *service
     container_name: oai_mme
-#    image: bazel/lte/gateway/c/core:mme_image
+    image: bazel/lte/gateway/c/core:mme_image
     healthcheck:
       test: ["CMD", "nc", "-zv", "localhost", "50073"]
       interval: "4s"
@@ -247,8 +248,8 @@ services:
     cap_add:
       - NET_ADMIN
       - NET_RAW
-    command: sh -c "/usr/local/bin/oai_mme -c /var/opt/magma/tmp/mme.conf -s /var/opt/magma/tmp/spgw.conf"
-#    command: [ "-c", "/var/opt/magma/tmp/mme.conf", "-s", "/var/opt/magma/tmp/spgw.conf" ]
+#    command: sh -c "/usr/local/bin/oai_mme -c /var/opt/magma/tmp/mme.conf -s /var/opt/magma/tmp/spgw.conf"
+    command: [ "-c", "/var/opt/magma/tmp/mme.conf", "-s", "/var/opt/magma/tmp/spgw.conf" ]
 
   pipelined:
     <<: *pyservice
@@ -333,8 +334,9 @@ services:
     command: /usr/bin/env python3 -m magma.eventd.main
 
   connectiond:
-    <<: *cservice
+    <<: *service
     container_name: connectiond
+    image: bazel/lte/gateway/c/connection_tracker/src:connectiond_image
     healthcheck:
       test: ["CMD", "nc", "-zv", "localhost", "50082"]
       interval: "4s"
@@ -342,17 +344,18 @@ services:
       retries: 3
     cap_add:
       - NET_ADMIN
-    command: /usr/local/bin/connectiond
+#    command: /usr/local/bin/connectiond
 
   liagentd:
-    <<: *cservice
+    <<: *service
     container_name: liagentd
+    image: bazel/lte/gateway/c/li_agent/src:liagentd_image
     healthcheck:
       test: ["CMD", "nc", "-zv", "localhost", "50065"]
       interval: "4s"
       timeout: "4s"
       retries: 3
-    command: /usr/local/bin/liagentd
+#    command: /usr/local/bin/liagentd
     restart: "no"
 
   envoy_controller:

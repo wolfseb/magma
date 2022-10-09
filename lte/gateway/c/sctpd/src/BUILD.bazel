@@ -10,6 +10,14 @@
 # limitations under the License.
 
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library")
+load("@io_bazel_rules_docker//container:container.bzl", "container_image")
+load("@io_bazel_rules_docker//docker/package_managers:download_pkgs.bzl", "download_pkgs")
+load("@io_bazel_rules_docker//docker/package_managers:install_pkgs.bzl", "install_pkgs")
+load(
+    "@io_bazel_rules_docker//docker/util:run.bzl",
+    "container_run_and_commit",
+)
+load("@io_bazel_rules_docker//cc:image.bzl", "cc_image")
 
 package(default_visibility = ["//lte/gateway/c/sctpd/src:__subpackages__"])
 
@@ -28,6 +36,36 @@ cc_binary(
         "//orc8r/gateway/c/common/service_registry",
         "//orc8r/protos:mconfigs_cpp_proto",
     ],
+)
+
+download_pkgs(
+    name = "sctpd_prerequisites",
+    image_tar = "@ubuntu_focal_amd64//image",
+    packages = [
+        "libcurl4",
+        "libgoogle-glog0v5",
+        "libsctp1",
+    ]
+)
+
+install_pkgs(
+    name = "sctpd_prerequisites_layer",
+    image_tar = "@ubuntu_focal_amd64//image",
+    installables_tar = ":sctpd_prerequisites.tar",
+    installation_cleanup_commands = "rm -rf /var/lib/apt/lists/*",
+    output_image_name = "sctpd_prerequisites_layer",
+)
+
+container_image(
+    name = "sctpd_base_image",
+    base = ":sctpd_prerequisites_layer",
+    entrypoint = ["/usr/bin/sctpd"],
+)
+
+cc_image(
+    name = "sctpd_image",
+    base = ":sctpd_base_image",
+    binary = ":sctpd",
 )
 
 cc_library(
