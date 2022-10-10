@@ -27,7 +27,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.synced_folder "../..", "/home/vagrant/magma"
 
   config.vm.define :magma, primary: true do |magma|
-    config.disksize.size = '64GB'
+    config.disksize.size = '128GB'
     config.vm.box = "magmacore/magma_dev"
     config.vm.box_version = "1.2.20220801"
      # Enable Dynamic Swap Space to prevent Out of Memory crashes
@@ -230,7 +230,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-all"]
       vb.customize ["guestproperty", "set", :id, "/VirtualBox/GuestAdd/VBoxService/--timesync-set-threshold", 1000 ]
     end
-    
+
     magma_deb.vm.provision "ansible" do |ansible|
       ansible.host_key_checking = false
       ansible.playbook = "deploy/magma_deb.yml"
@@ -243,7 +243,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     # Reload VM to apply correct network configuration
     magma_deb.vm.provision :reload
-    
+
   end
 
 end
