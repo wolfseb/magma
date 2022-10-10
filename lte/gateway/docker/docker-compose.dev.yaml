@@ -101,6 +101,6 @@ services:
     environment:
       - MAGMA_DEV_MODE=1
 
-  envoy_controller:
-    environment:
-      - MAGMA_DEV_MODE=1
+#  envoy_controller:
+#    environment:
+#      - MAGMA_DEV_MODE=1

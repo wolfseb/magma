@@ -358,13 +358,13 @@ services:
 #    command: /usr/local/bin/liagentd
     restart: "no"
 
-  envoy_controller:
-    <<: *service
-    image: ${DOCKER_REGISTRY}gateway_go${OPTIONAL_ARCH_POSTFIX}:${IMAGE_VERSION}
-    container_name: envoy_controller
-    healthcheck:
-      test: ["CMD", "nc", "-zv", "localhost", "50081"]
-      interval: "4s"
-      timeout: "4s"
-      retries: 3
-    command: /var/opt/magma/bin/envoy_controller
+#  envoy_controller:
+#    <<: *service
+#    image: ${DOCKER_REGISTRY}gateway_go${OPTIONAL_ARCH_POSTFIX}:${IMAGE_VERSION}
+#    container_name: envoy_controller
+#    healthcheck:
+#      test: ["CMD", "nc", "-zv", "localhost", "50081"]
+#      interval: "4s"
+#      timeout: "4s"
+#      retries: 3
+#    command: /var/opt/magma/bin/envoy_controller
