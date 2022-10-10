@@ -406,7 +406,7 @@ services:
       retries: 3
     environment:
       MAGMA_DEV_MODE: ${MAGMA_DEV_MODE}
-    command: /var/opt/magma/bin/envoy_controller
+#    command: /var/opt/magma/bin/envoy_controller
 
   # for docker compose v1: https://github.com/docker/compose/issues/8351#issuecomment-1085811366
   # also see https://docs.docker.com/compose/compose-file/#depends_on
