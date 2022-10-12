@@ -1,4 +1,5 @@
-startup --output_base=/tmp/bazel
+#startup --output_base=/tmp/bazel
+startup --output_base=/var/tmp/bazel
 startup --host_jvm_args="-Xmx8g"
 
 # STYLE CONFIGS
@@ -10,7 +11,7 @@ build:production --config=lsan --copt=-O3
 # C/C++ CONFIGS
 build --cxxopt=-std=c++14
 # Create debug information only for magma binaries (not for external dependencies).
-# --compilation_mode=dbg would also create debug information of external dependencies 
+# --compilation_mode=dbg would also create debug information of external dependencies
 # and increase the size of artifacts drastically.
 # Needs --strip=never so that debug information is not removed by the linker.
 # See https://bazel.build/docs/user-manual#compilation-mode and
@@ -49,7 +50,7 @@ common:disk_cache --repository_cache=/var/cache/bazel-cache-repo
 # REMOTE CACHING READ-ONLY CONFIGS
 # The file bazel/bazelrcs/remote_caching_ro.bazelrc is templated in CI
 # The full config is then written to bazel/bazelrcs/cache.bazelrc
-build:remote_caching_ro --remote_upload_local_results=false 
+build:remote_caching_ro --remote_upload_local_results=false
 
 # REMOTE DOWNLOAD OPTIMIZATION
 build:remote_download_optimization --remote_download_minimal
@@ -58,7 +59,7 @@ build:remote_download_optimization --remote_download_minimal
 run:remote_download_optimization --remote_download_toplevel
 
 # Import the bazel caching config, with default disk cache,
-# which in CI gets overwritten by the remote caching config. 
+# which in CI gets overwritten by the remote caching config.
 import %workspace%/bazel/bazelrcs/cache.bazelrc
 
 # TEST CONFIGS
