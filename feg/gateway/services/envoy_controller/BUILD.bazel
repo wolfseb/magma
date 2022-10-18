@@ -10,6 +10,10 @@
 # limitations under the License.
 
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+load("@io_bazel_rules_docker//container:container.bzl", "container_image")
+load("@io_bazel_rules_docker//go:image.bzl", "go_image")
+load("@io_bazel_rules_docker//docker/package_managers:download_pkgs.bzl", "download_pkgs")
+load("@io_bazel_rules_docker//docker/package_managers:install_pkgs.bzl", "install_pkgs")
 
 go_library(
     name = "envoy_controller_lib",
@@ -31,3 +35,34 @@ go_binary(
     embed = [":envoy_controller_lib"],
     visibility = ["//lte/gateway/release:__pkg__"],
 )
+
+download_pkgs(
+    name = "envoy_controller_requisites",
+    image_tar = "@ubuntu_focal_amd64//image",
+    packages = [
+      "netcat",
+    ],
+)
+
+install_pkgs(
+    name = "envoy_controller_requisites_layer",
+    image_tar = "@ubuntu_focal_amd64//image",
+    installables_tar = ":envoy_controller_requisites.tar",
+    installation_cleanup_commands = "rm -rf /var/lib/apt/lists/*",
+    output_image_name = "envoy_controller_requisites_layer",
+)
+
+container_image(
+    name = "envoy_controller_base_image",
+    base = ":envoy_controller_requisites_layer.tar",
+)
+
+go_image(
+    name = "envoy_controller_image",
+    embed = [":envoy_controller_lib"],
+    base = ":envoy_controller_base_image",
+    goarch = "amd64",
+    goos = "linux",
+    pure = "off",
+)
+

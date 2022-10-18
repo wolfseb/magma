@@ -397,7 +397,8 @@ services:
 
   envoy_controller:
     <<: *service
-    image: ${DOCKER_REGISTRY}gateway_go${OPTIONAL_ARCH_POSTFIX}:${IMAGE_VERSION}
+#    image: ${DOCKER_REGISTRY}gateway_go${OPTIONAL_ARCH_POSTFIX}:${IMAGE_VERSION}
+    image: bazel/feg/gateway/services/envoy_controller:envoy_controller_image
     container_name: envoy_controller
     healthcheck:
       test: ["CMD", "nc", "-zv", "localhost", "50081"]
