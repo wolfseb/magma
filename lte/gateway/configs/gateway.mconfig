@@ -82,7 +82,7 @@
       "mmeGid": 1,
       "mmeRelativeCapacity": 11,
       "mnc": "01",
-      "natEnabled": true,
+      "natEnabled": false,
       "nonEpsServiceControl": 0,
       "relayEnabled": false,
       "tac": 1
@@ -90,7 +90,7 @@
     "mobilityd": {
       "@type": "type.googleapis.com/magma.mconfig.MobilityD",
       "ipBlock": "192.168.128.0/24",
-      "ip_allocator_type": "IP_POOL",
+      "ip_allocator_type": "DHCP",
       "ipv6Block": "fdee:5:6c::/48",
       "ipv6PrefixAllocationType": "RANDOM",
       "logLevel": "INFO",
@@ -109,7 +109,7 @@
       "enable5gFeatures": false,
       "liUes": {},
       "logLevel": "INFO",
-      "natEnabled": true,
+      "natEnabled": false,
       "services": [
         "DPI",
         "ENFORCEMENT"
