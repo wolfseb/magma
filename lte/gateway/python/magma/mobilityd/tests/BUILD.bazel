@@ -67,6 +67,7 @@ pytest_test(
     tags = TAG_SUDO_TEST,
     deps = [
         "//lte/gateway/python/magma/mobilityd:mobilityd_lib",
+        requirement("fakeredis"),
     ],
 )
 

@@ -15,17 +15,18 @@ from datetime import datetime, timedelta
 from ipaddress import IPv4Network
 from unittest.mock import patch, MagicMock
 import unittest
+import fakeredis
 
 from magma.mobilityd.dhcp_desc import DHCPDescriptor, DHCPState
 from magma.mobilityd.ip_allocator_dhcp import IPAllocatorDHCP, DHCP_CLI_HELPER_PATH
 from magma.mobilityd.ip_descriptor import IPState
 from magma.mobilityd.ip_descriptor_map import IpDescriptorMap
-
+from magma.mobilityd.mobility_store import AssignedIpBlocksSet, ip_states, defaultdict_key
 
 MAC = "01:23:45:67:89:ab"
 MAC2 = "01:23:45:67:89:cd"
-IP = "1.2.3.4"
-IP2 = "1.2.3.5"
+IP = "1.2.3.0/24"
+IP2 = "1.2.4.0/24"
 VLAN = "0"
 LEASE_EXPIRATION_TIME = 10
 
@@ -148,9 +149,41 @@ class TestRemoveIpBlocks(unittest.TestCase):
         ret = MagicMock()
         ret.returncode = 0
         mock_run.return_value = ret
-        self.store.assigned_ip_blocks = {IP, IP2}
-        self.store.ip_state_map = IpDescriptorMap({IP: IPState.ALLOCATED, IP2: IPState.ALLOCATED})
+        client = fakeredis.FakeStrictRedis()
+        self.store.assigned_ip_blocks = AssignedIpBlocksSet(client)
+        self.store.assigned_ip_blocks.add(IPv4Network(IP))
+        self.store.assigned_ip_blocks.add(IPv4Network(IP2))
+        self.store.ip_state_map = IpDescriptorMap({IPState.ALLOCATED: {IP, IP2}})
 
-        removed_block = self.ip_alloc_dhcp.remove_ip_blocks(IPv4Network(IP))
-        assert removed_block == IPv4Network(IP)
-        assert self.store.assigned_ip_blocks == {IP2}
+        get_ip_states = lambda key: ip_states(client, key)
+        self.store.ip_state_map = IpDescriptorMap(
+            defaultdict_key(get_ip_states),  # type: ignore[arg-type]
+        )
+        removed_block = self.ip_alloc_dhcp.remove_ip_blocks([IPv4Network(IP)])
+
+        self.assertListEqual([IPv4Network(IP)], removed_block)
+        expected = AssignedIpBlocksSet(fakeredis.FakeStrictRedis())
+        expected.add(IPv4Network(IP2))
+        self.assertSetEqual(expected, self.store.assigned_ip_blocks)
+
+    @patch("subprocess.run")
+    def test_remove_two_ip_blocks(self, mock_run):
+        ret = MagicMock()
+        ret.returncode = 0
+        mock_run.return_value = ret
+        client = fakeredis.FakeStrictRedis()
+        self.store.assigned_ip_blocks = AssignedIpBlocksSet(client)
+        self.store.assigned_ip_blocks.add(IPv4Network(IP))
+        self.store.assigned_ip_blocks.add(IPv4Network(IP2))
+        self.store.ip_state_map = IpDescriptorMap({IPState.ALLOCATED: {IP, IP2}})
+
+        get_ip_states = lambda key: ip_states(client, key)
+        self.store.ip_state_map = IpDescriptorMap(
+            defaultdict_key(get_ip_states),  # type: ignore[arg-type]
+        )
+        removed_blocks = self.ip_alloc_dhcp.remove_ip_blocks([IPv4Network(IP), IPv4Network(IP2)])
+
+        self.assertListEqual([IPv4Network(IP)], removed_blocks)
+        expected = AssignedIpBlocksSet(fakeredis.FakeStrictRedis())
+        # expected.add(IPv4Network(IP2))
+        self.assertSetEqual(expected, self.store.assigned_ip_blocks)
