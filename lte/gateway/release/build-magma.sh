@@ -193,9 +193,9 @@ RELEASE_DIR=${MAGMA_ROOT}/lte/gateway/release
 POSTINST=${RELEASE_DIR}/magma-postinst
 
 # python environment
-PY_VERSION=python3.8
+PY_VERSION=3.8
 PY_PKG_LOC=dist-packages
-PY_DEST=/usr/local/lib/${PY_VERSION}/${PY_PKG_LOC}
+PY_DEST=/usr/local/lib/python${PY_VERSION}/${PY_PKG_LOC}
 PY_PROTOS=${PYTHON_BUILD}/gen/
 PY_LTE=${MAGMA_ROOT}/lte/gateway/python
 PY_ORC8R=${MAGMA_ROOT}/orc8r/gateway/python
@@ -286,7 +286,7 @@ popd
 
 cd ${PY_ORC8R}
 make protos
-PKG_VERSION=${FULL_VERSION} ${PY_VERSION} setup.py install --root ${PY_TMP_BUILD} --install-layout deb \
+PKG_VERSION=${FULL_VERSION} /usr/bin/python${PY_VERSION} setup.py install --root ${PY_TMP_BUILD} --install-layout deb \
     --no-compile --single-version-externally-managed
 
 ORC8R_PY_DEPS=`${RELEASE_DIR}/pydep lockfile ${RELEASE_DIR}/magma.lockfile.$OS`
@@ -294,7 +294,7 @@ ORC8R_PY_DEPS=`${RELEASE_DIR}/pydep lockfile ${RELEASE_DIR}/magma.lockfile.$OS`
 cd ${PY_LTE}
 make protos
 make swagger
-PKG_VERSION=${FULL_VERSION} ${PY_VERSION} setup.py install --root ${PY_TMP_BUILD} --install-layout deb \
+PKG_VERSION=${FULL_VERSION} /usr/bin/python${PY_VERSION} setup.py install --root ${PY_TMP_BUILD} --install-layout deb \
     --no-compile --single-version-externally-managed
 ${RELEASE_DIR}/pydep finddep -l ${RELEASE_DIR}/magma.lockfile.$OS setup.py
 LTE_PY_DEPS=`${RELEASE_DIR}/pydep lockfile ${RELEASE_DIR}/magma.lockfile.$OS`
