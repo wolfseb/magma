@@ -30,6 +30,7 @@ IMAGE_NAME = 'magma/py-lint'
 ORC8R_PYTHON_PATH = 'orc8r/gateway/python/magma'
 LTE_PYTHON_PATH = 'lte/gateway/python/magma'
 GITHUB_IMAGE_NAME = 'ghcr.io/magma/magma/python-precommit:latest'
+EXCLUDED_FILES = 'bazel-bin/*,bazel-out/*,build/*,fabfile.py,setup.py'
 
 
 def main() -> None:
@@ -69,7 +70,12 @@ def _format_diff(paths: List[str]):
         _run_add_trailing_comma(path)
         # This should be consistent with .github/workflows/python-workflow.yml
         autopep8_checks = 'W191,W291,W292,W293,W391,E131,E1,E2,E3'
-        _run_docker_cmd(['autopep8', '--select', autopep8_checks, '-r', '--in-place', path])
+        _run_docker_cmd(
+            [
+                'autopep8', '--select', autopep8_checks, '-r', '--in-place',
+                '--exclude=' + EXCLUDED_FILES, path,
+            ],
+        )
 
 
 def _run_add_trailing_comma(path: str):
@@ -86,7 +92,7 @@ def _run_add_trailing_comma(path: str):
 
 def _run_flake8(paths: List[str]):
     for path in paths:
-        _run_docker_cmd(['flake8', '--exit-zero', path])
+        _run_docker_cmd(['flake8', '--exit-zero', '--exclude=' + EXCLUDED_FILES, path])
 
 
 def _run_docker_cmd(commands: List[str]):
