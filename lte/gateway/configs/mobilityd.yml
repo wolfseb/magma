@@ -14,5 +14,6 @@
 # log_level is set in mconfig. it can be overridden here
 redis_port: 6380
 print_grpc_payload: false
+dhcp_iface: eth0
 
 ipv6_prefixlen: 58

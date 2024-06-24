@@ -121,7 +121,7 @@ class IPv6AllocatorPool(IPAllocator):
             self._assigned_ip_block,
         )
         self._assigned_ip_block = None
-        self._store.assigned_ip_blocks -= removed_blocks
+        self._store.assigned_ip_blocks -= set(removed_blocks)
 
         return removed_blocks
 
